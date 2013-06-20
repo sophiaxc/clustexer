@@ -1,7 +1,7 @@
 clustexer
 =========
 
-K-Means Cluster Location Data and Generate Convex Hulls CSV/Google Maps HTML Script
+Script for K-Means clustering geodata and generating convex hulls of the clusters to CSV/Google Maps HTML
 
 This script is used to:
 >> cluster data with k-means
