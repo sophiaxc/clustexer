@@ -150,7 +150,8 @@ def get_convex_hull_polygon(points):
     Given a set of points, generate the convex hull as a polygon.
     """
     hull = ConvexHull(points)
-    vertices_dict = convert_to_dict(hull.vertices)
+    # break it out into a dictionary of vertex to its neighbor vertex.
+    vertices_dict = dict((vertex[0], vertex[1]) for vertex in hull.vertices)
     ordered_vertices = follow_vertices(hull.vertices[0][0], vertices_dict)
     polygon_points = [hull.points[index] for index in ordered_vertices]
     return polygon_points
@@ -167,17 +168,6 @@ def follow_vertices(start_vertex, vertices_dict):
         next_vertex = vertices_dict[next_vertex]
     vertices.append(start_vertex)
     return vertices
-
-def convert_to_dict(vertices):
-    """
-    Given an array of a pair of vertices, break it out into a dictionary
-    of vertex to its neighbor vertex.
-    """
-    vertices_dict = {}
-    for vertex in vertices:
-        vertices_dict[vertex[0]] = vertex[1]
-    return vertices_dict
-
 
 # Paaaarsing!
 parser = argparse.ArgumentParser()
