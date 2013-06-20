@@ -4,9 +4,9 @@ clustexer
 Script for K-Means clustering geodata and generating convex hulls of the clusters to CSV/Google Maps HTML
 
 This script is used to:
-*cluster data with k-means
-*calculate convex hull
-*display convex hulls as polygons on google maps in HTML with index labels
+* cluster data with k-means
+* calculate convex hull
+* display convex hulls as polygons on google maps in HTML with index labels
 
 Data should come in the formats:
 
