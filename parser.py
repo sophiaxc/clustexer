@@ -121,7 +121,8 @@ def read_clustered_data(filename):
     return cluster_points
 
 def output_formatted_polygon(id, polygon_points, prefix=None):
-    """ If prefix is defined, outputs row as:j
+    """
+    If prefix is defined, outputs row as
     prefix,neighborhood_n,x1 y1;x2 y2;x3 y3
     """
 
@@ -138,6 +139,9 @@ def output_formatted_polygon(id, polygon_points, prefix=None):
         print ",".join(output)
 
 def get_polygon_center(points):
+    """
+    Get a polygon's "center" by averaging the x/y
+    """
     return (numpy.mean([point[0] for point in points]),
             numpy.mean([point[1] for point in points]))
 
