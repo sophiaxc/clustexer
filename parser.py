@@ -73,9 +73,9 @@ def parse_file(filename, output_html=None, cluster_prefix=None,
         polygon_centers = dict((id, get_polygon_center(polygon))
                 for id, polygon in convex_hulls.iteritems())
         f.write(template.render(
-            convex_hulls=convex_hulls,
-            polygon_centers=polygon_centers,
-            map_latlng=map_latlng))
+                convex_hulls=convex_hulls,
+                polygon_centers=polygon_centers,
+                map_latlng=map_latlng))
         f.close()
 
     [output_formatted_polygon(id, polygon, cluster_prefix)
