@@ -7,6 +7,10 @@ This script is used to:
 * cluster data with k-means
 * calculate convex hull
 * display convex hulls as polygons on google maps in HTML with index labels
+ 
+Given some sexy data, your convex hulls will be viewable and labeled on google maps as such:
+![NY Clusters](/images/ny_clusters.png)
+
 
 Data should come in the formats:
 
