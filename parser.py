@@ -28,8 +28,8 @@ python parser.py clustered_data/marin_pts.csv --cluster-prefix marin
 Example usage to get convex hulls polygons to stdout from unclustered data
 python parser.py raw_data/marin_trip_pts.csv --num-clusters 15
 
-Example usage to output convex hulls to html from clustered data with maplatlng:
-python parser.py clustered_data/marin_pts.csv --html marin.html --map-latlng 37.7749, -122.4194
+Example usage to output convex hulls to html from clustered data:
+python parser.py clustered_data/marin_pts.csv --html marin.html
 
 Example usage to get convex hull points from clustered data:
 python parser.py clustered_data/marin_pts.csv --cluster-prefix marin
@@ -45,17 +45,12 @@ python parser.py raw_data/marin_trip_pts.csv --html marin.html
 """
 
 def parse_file(filename, output_html=None, cluster_prefix=None,
-               num_clusters=None, map_latlng=None):
+               num_clusters=None):
     """ Parses a file for clustering/display.
 
     Given a filename in the format of lat, lng, neighborhood id,
     generate the convex hull polygon for each neighborhood.
     """
-    # Default html map to SF
-    map_latlng = [37.7749, -122.4194] if map_latlng is None else map_latlng
-    if len(map_latlng) != 2:
-        raise Exception('map_latlng must have two points')
-
     cluster_points = {}
     if num_clusters is None:
         cluster_points = read_clustered_data(filename)
@@ -69,17 +64,38 @@ def parse_file(filename, output_html=None, cluster_prefix=None,
     if output_html is not None:
         f = open(output_html, 'w')
         env = Environment(loader=FileSystemLoader('./'))
-        template = env.get_template('base.html')
+        template = env.get_template('_base.html')
         polygon_centers = dict((id, get_polygon_center(polygon))
                 for id, polygon in convex_hulls.iteritems())
         f.write(template.render(
                 convex_hulls=convex_hulls,
                 polygon_centers=polygon_centers,
-                map_latlng=map_latlng))
+                map_bounds=get_map_bounds(convex_hulls)))
         f.close()
 
     [output_formatted_polygon(id, polygon, cluster_prefix)
             for id, polygon in convex_hulls.iteritems()]
+
+def get_map_bounds(convex_hulls):
+    """ Return dictionary of map bounding box coordinates.
+
+    Using the points of all the convex hulls, calculates the bounding box
+    for the map to display the convex hulls.
+    """
+    all_points = []
+    for id, polygon in convex_hulls.iteritems():
+        all_points.extend(polygon)
+    lats = [point[0] for point in all_points]
+    lngs = [point[1] for point in all_points]
+
+    south, north = min(lats), max(lats)
+    west, east = min(lngs), max(lngs)
+
+    # Flip east/west if the bounding doesn't contain polygons
+    if not(west < numpy.mean(lngs) < east):
+        east, west = west, east
+
+    return {"SW" : [south, west], "NE" : [north, east]}
 
 def read_unclustered_data(filename, num_clusters):
     """ Return dictionary of cluster id to array of points.
@@ -184,8 +200,5 @@ parser.add_argument('--cluster-prefix',
         help="If specified, cluster prefix outputs polygons to a file of")
 parser.add_argument('--num-clusters', type=int,
         help="If specified, k means clusters are computed from the input file.")
-parser.add_argument('--map-latlng', type=float, nargs="+",
-        help="If specified, centers the map at the lat lng")
 args = parser.parse_args()
-parse_file(args.filename, args.html, args.cluster_prefix,
-        args.num_clusters, args.map_latlng)
+parse_file(args.filename, args.html, args.cluster_prefix, args.num_clusters)

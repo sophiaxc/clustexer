@@ -37,14 +37,17 @@
     <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/maplabel/src/maplabel-compiled.js"></script>
     <script>
         function initialize() {
-            var myLatLng = new google.maps.LatLng({{map_latlng[0]}}, {{map_latlng[1]}});
           var mapOptions = {
-            zoom: 13,
-            center: myLatLng,
             mapTypeId: google.maps.MapTypeId.TERRAIN
           };
           var map = new google.maps.Map(document.getElementById('map-canvas'),
-              mapOptions);
+                                        mapOptions);
+
+          map.fitBounds(new google.maps.LatLngBounds(
+              // SW corner, NE corner
+              new google.maps.LatLng({{map_bounds["SW"][0]}}, {{map_bounds["SW"][1]}}),
+              new google.maps.LatLng({{map_bounds["NE"][0]}}, {{map_bounds["NE"][1]}}))
+          );
 
           {% for id, polygon_points in convex_hulls.iteritems() %}
               var neighborhood_{{id}};
