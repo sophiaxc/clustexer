@@ -45,8 +45,9 @@ python parser.py raw_data/marin_trip_pts.csv --html marin.html
 """
 
 def parse_file(filename, output_html=None, cluster_prefix=None,
-        num_clusters=None, map_latlng=None):
-    """
+               num_clusters=None, map_latlng=None):
+    """ Parses a file for clustering/display.
+
     Given a filename in the format of lat, lng, neighborhood id,
     generate the convex hull polygon for each neighborhood.
     """
@@ -81,7 +82,8 @@ def parse_file(filename, output_html=None, cluster_prefix=None,
             for id, polygon in convex_hulls.iteritems()]
 
 def read_unclustered_data(filename, num_clusters):
-    """
+    """ Return dictionary of cluster id to array of points.
+
     Given a filename in the format of lat, lng
     generate k clusters based on arguments. Outputs a dictionary with
     the cluster id as the key mapped to a list of lat, lng pts
@@ -107,7 +109,8 @@ def read_unclustered_data(filename, num_clusters):
     return cluster_points
 
 def read_clustered_data(filename):
-    """
+    """ Return dictionary of cluster id to array of points.
+
     Given a filename in the format of lat, lng, cluster_id
     Outputs a dictionary with the cluster id as the key mapped to
     a list of lat, lng pts
@@ -121,7 +124,8 @@ def read_clustered_data(filename):
     return cluster_points
 
 def output_formatted_polygon(id, polygon_points, prefix=None):
-    """
+    """ Writes out formatted polygons to stdout or file.
+
     If prefix is defined, outputs row as
     prefix,neighborhood_n,x1 y1;x2 y2;x3 y3
     """
@@ -139,14 +143,16 @@ def output_formatted_polygon(id, polygon_points, prefix=None):
         print ",".join(output)
 
 def get_polygon_center(points):
-    """
+    """ Returns a tuple representing a polygon center.
+
     Get a polygon's "center" by averaging the x/y
     """
     return (numpy.mean([point[0] for point in points]),
             numpy.mean([point[1] for point in points]))
 
 def get_convex_hull_polygon(points):
-    """
+    """ Returns an array of points.
+
     Given a set of points, generate the convex hull as a polygon.
     """
     hull = ConvexHull(points)
@@ -157,7 +163,8 @@ def get_convex_hull_polygon(points):
     return polygon_points
 
 def follow_vertices(start_vertex, vertices_dict):
-    """
+    """ Returns an array of vertices.
+
     Follow the start vertex to generate the vertices in order, given
     a dictionary with the key as a vertex and the value as its neighbor vertex.
     """
@@ -181,6 +188,5 @@ parser.add_argument('--num-clusters', type=int,
 parser.add_argument('--map-latlng', type=float, nargs="+",
         help="If specified, centers the map at the lat lng")
 args = parser.parse_args()
-print args
 parse_file(args.filename, args.html, args.cluster_prefix,
         args.num_clusters, args.map_latlng)
