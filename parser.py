@@ -130,8 +130,7 @@ def output_formatted_polygon(id, polygon_points, prefix=None):
     prefix,neighborhood_n,x1 y1;x2 y2;x3 y3
     """
 
-    formatted_points = ";".join([" ".join([str(pt[0]), str(pt[1])])
-            for pt in polygon_points])
+    formatted_points = ";".join(["%s %s" % tuple(pt) for pt in polygon_points])
     output = ["neighborhood_%s" % id, formatted_points]
     if prefix:
         output.insert(0, prefix)
