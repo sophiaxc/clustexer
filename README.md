@@ -43,9 +43,9 @@ Example usage to get convex hulls polygons to stdout from unclustered data:
 
 ***
 
-Example usage to output convex hulls to html from clustered data with maplatlng:
+Example usage to output convex hulls to html from clustered data:
 
-    python parser.py clustered_data/marin_pts.csv --html marin.html --map-latlng 37.7749, -122.4194
+    python parser.py clustered_data/marin_pts.csv --html marin.html
 
 ***
 
