@@ -91,8 +91,9 @@ def get_map_bounds(convex_hulls):
     south, north = min(lats), max(lats)
     west, east = min(lngs), max(lngs)
 
-    # Flip east/west if the bounding doesn't contain polygons
-    if not(west < numpy.mean(lngs) < east):
+    # Flip east/west if the bounding doesn't contain polygons.
+    # Check if each point is within the west/east bounds.
+    if not (all([west <= lng <= east for lng in lngs])):
         east, west = west, east
 
     return {"SW" : [south, west], "NE" : [north, east]}
@@ -185,7 +186,7 @@ def follow_vertices(start_vertex, vertices_dict):
     """
     vertices = [start_vertex]
     next_vertex = vertices_dict[start_vertex]
-    while(next_vertex != start_vertex):
+    while (next_vertex != start_vertex):
         vertices.append(next_vertex)
         next_vertex = vertices_dict[next_vertex]
     vertices.append(start_vertex)
