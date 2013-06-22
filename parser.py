@@ -1,12 +1,3 @@
-import argparse
-import numpy
-
-from numpy import array
-from scipy.cluster.vq import kmeans,vq
-from collections import defaultdict
-from pyhull.convex_hull import ConvexHull
-from jinja2 import Environment, FileSystemLoader
-
 """
 Data should come in the formats:
 
@@ -44,9 +35,18 @@ python parser.py raw_data/marin_trip_pts.csv --html marin.html
     >> Outputs convex hulls to a file called marin.csv
 """
 
+import argparse
+import numpy
+
+from numpy import array
+from scipy.cluster.vq import kmeans,vq
+from collections import defaultdict
+from pyhull.convex_hull import ConvexHull
+from jinja2 import Environment, FileSystemLoader
+
 def parse_file(filename, output_html=None, cluster_prefix=None,
                num_clusters=None):
-    """ Parses a file for clustering/display.
+    """Parses a file for clustering/display.
 
     Given a filename in the format of lat, lng, neighborhood id,
     generate the convex hull polygon for each neighborhood.
@@ -59,25 +59,28 @@ def parse_file(filename, output_html=None, cluster_prefix=None,
 
     # Generate the convex hulls mapped to their cluster id
     convex_hulls = dict((id, get_convex_hull_polygon(points))
-            for id, points in cluster_points.iteritems())
+                        for id, points in cluster_points.iteritems())
 
     if output_html is not None:
-        f = open(output_html, 'w')
-        env = Environment(loader=FileSystemLoader('./'))
-        template = env.get_template('_base.html')
-        polygon_centers = dict((id, get_polygon_center(polygon))
-                for id, polygon in convex_hulls.iteritems())
-        f.write(template.render(
+        with open(output_html, 'w') as outf:
+            env = Environment(loader=FileSystemLoader('./'))
+            template = env.get_template('_base.html')
+            polygon_centers = dict((id, get_polygon_center(polygon))
+                                   for id, polygon in convex_hulls.iteritems())
+
+            # N.B. for every large numbers of polygons, we'd want to
+            # use template.generate()
+            outf.write(template.render(
                 convex_hulls=convex_hulls,
                 polygon_centers=polygon_centers,
                 map_bounds=get_map_bounds(convex_hulls)))
-        f.close()
 
-    [output_formatted_polygon(id, polygon, cluster_prefix)
-            for id, polygon in convex_hulls.iteritems()]
+    for id, polygon in convex_hulls.iteritems():
+        output_formatted_polygon(id, polygon, cluster_prefix)
+
 
 def get_map_bounds(convex_hulls):
-    """ Return dictionary of map bounding box coordinates.
+    """Return dictionary of map bounding box coordinates.
 
     Using the points of all the convex hulls, calculates the bounding box
     for the map to display the convex hulls.
@@ -93,73 +96,73 @@ def get_map_bounds(convex_hulls):
 
     # Flip east/west if the bounding doesn't contain polygons.
     # Check if each point is within the west/east bounds.
-    if not (all([west <= lng <= east for lng in lngs])):
+    if not all(west <= lng <= east for lng in lngs):
         east, west = west, east
 
-    return {"SW" : [south, west], "NE" : [north, east]}
+    return {"SW" : (south, west), "NE" : (north, east)}
+
 
 def read_unclustered_data(filename, num_clusters):
-    """ Return dictionary of cluster id to array of points.
+    """Return dictionary of cluster id to array of points.
 
     Given a filename in the format of lat, lng
     generate k clusters based on arguments. Outputs a dictionary with
     the cluster id as the key mapped to a list of lat, lng pts
     """
     request_points = []
-    f = open(filename, 'rb')
-    f.next() # Skip the header row
-    for line in f:
-        lat, lng = line.split(",")
-        request_points.append([float(lat), float(lng)])
+    with open(filename, 'rb') as input_file:
+        input_file.next() # Skip the header row
+        for line in input_file:
+            lat, lng = line.split(',')
+            request_points.append((float(lat), float(lng)))
     request_points = array(request_points)
 
     # computing K-Means with K = num_clusters
     centroids,_ = kmeans(request_points, int(num_clusters))
     # assign each sample to a cluster
-    idx,_ = vq(request_points,centroids)
+    idx, _ = vq(request_points,centroids)
 
     # map cluster lat, lng to cluster index
     cluster_points = defaultdict(list)
     for i in xrange(len(request_points)):
         lat, lng = request_points[i]
-        cluster_points[idx[i]].append([lat, lng])
+        cluster_points[idx[i]].append((lat, lng))
     return cluster_points
 
+
 def read_clustered_data(filename):
-    """ Return dictionary of cluster id to array of points.
+    """Return dictionary of cluster id to array of points.
 
     Given a filename in the format of lat, lng, cluster_id
     Outputs a dictionary with the cluster id as the key mapped to
     a list of lat, lng pts
     """
     cluster_points = defaultdict(list)
-    f = open(filename, 'rb')
-    f.next() # Skip the header row
-    for line in f:
-        lat, lng, id = line.split(",")
-        cluster_points[int(id)].append([float(lat), float(lng)])
+    with open(filename, 'rb') as input_file:
+        input_file.next() # Skip the header row
+        for line in input_file:
+            lat, lng, cluster_id = line.split(',')
+            cluster_points[int(cluster_id)].append((float(lat), float(lng)))
     return cluster_points
 
+
 def output_formatted_polygon(id, polygon_points, prefix=None):
-    """ Writes out formatted polygons to stdout or file.
+    """Writes out formatted polygons to stdout or file.
 
     If prefix is defined, outputs row as
     prefix,neighborhood_n,x1 y1;x2 y2;x3 y3
     """
-
-    formatted_points = ";".join(["%s %s" % tuple(pt) for pt in polygon_points])
+    formatted_points = ";".join("%s %s" % pt for pt in polygon_points)
     output = ["neighborhood_%s" % id, formatted_points]
     if prefix:
         output.insert(0, prefix)
-        f = open("%s.csv" % prefix, 'a')
-        f.write(",".join(output))
-        f.write("\n")
-        f.close()
+        with open('%s.csv' % (prefix,), 'a') as output_file:
+            output_file.write(','.join(output) + '\n')
     else:
-        print ",".join(output)
+        print ','.join(output)
 
 def get_polygon_center(points):
-    """ Returns a tuple representing a polygon center.
+    """Returns a tuple representing a polygon center.
 
     Get a polygon's "center" by averaging the x/y
     """
@@ -167,7 +170,7 @@ def get_polygon_center(points):
             numpy.mean([point[1] for point in points]))
 
 def get_convex_hull_polygon(points):
-    """ Returns an array of points.
+    """Returns an array of points.
 
     Given a set of points, generate the convex hull as a polygon.
     """
@@ -179,27 +182,28 @@ def get_convex_hull_polygon(points):
     return polygon_points
 
 def follow_vertices(start_vertex, vertices_dict):
-    """ Returns an array of vertices.
+    """Returns an array of vertices.
 
     Follow the start vertex to generate the vertices in order, given
     a dictionary with the key as a vertex and the value as its neighbor vertex.
     """
     vertices = [start_vertex]
     next_vertex = vertices_dict[start_vertex]
-    while (next_vertex != start_vertex):
+    while next_vertex != start_vertex:
         vertices.append(next_vertex)
         next_vertex = vertices_dict[next_vertex]
     vertices.append(start_vertex)
     return vertices
 
-# Paaaarsing!
-parser = argparse.ArgumentParser()
-parser.add_argument('filename')
-parser.add_argument('--html',
-        help="If specified, outputs html representation of clusters to filename.")
-parser.add_argument('--cluster-prefix',
-        help="If specified, cluster prefix outputs polygons to a file of")
-parser.add_argument('--num-clusters', type=int,
-        help="If specified, k means clusters are computed from the input file.")
-args = parser.parse_args()
-parse_file(args.filename, args.html, args.cluster_prefix, args.num_clusters)
+if __name__ == '__main__':
+    # Paaaarsing!
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filename')
+    parser.add_argument('--html',
+            help="If specified, outputs html representation of clusters to filename.")
+    parser.add_argument('--cluster-prefix',
+            help="If specified, cluster prefix outputs polygons to a file of")
+    parser.add_argument('--num-clusters', type=int,
+            help="If specified, k means clusters are computed from the input file.")
+    args = parser.parse_args()
+    parse_file(args.filename, args.html, args.cluster_prefix, args.num_clusters)
