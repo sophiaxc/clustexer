@@ -71,9 +71,9 @@ def parse_file(filename, output_html=None, cluster_prefix=None,
             # N.B. for every large numbers of polygons, we'd want to
             # use template.generate()
             outf.write(template.render(
-                convex_hulls=convex_hulls,
-                polygon_centers=polygon_centers,
-                map_bounds=get_map_bounds(convex_hulls)))
+                    convex_hulls=convex_hulls,
+                    polygon_centers=polygon_centers,
+                    map_bounds=get_map_bounds(convex_hulls)))
 
     for id, polygon in convex_hulls.iteritems():
         output_formatted_polygon(id, polygon, cluster_prefix)
