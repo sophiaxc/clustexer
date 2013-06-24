@@ -1,7 +1,7 @@
 clustexer
 =========
 
-# Introduction
+## Introduction
 
 Script for K-Means clustering geodata and generating convex hulls of the clusters to CSV/Google Maps HTML
 
@@ -15,14 +15,14 @@ Given some sexy data, your convex hulls will be viewable and labeled on google m
 ![NY Clusters](/images/ny_clusters.png)
 
 
-# Setup
+## Setup
 
 Install the dependencies with:
     
     pip install -r requirements.txt
 
 
-# Data Format
+## Data Format
 
 Data should come in the formats:
 
@@ -34,7 +34,7 @@ Data should come in the formats:
     >> In this case, specify the k for clustering with --num-clusters
 
 
-# Examples
+## Examples
 
 Example usage to get convex hull polygons to stdout from clustered input:
 
