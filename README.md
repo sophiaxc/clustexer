@@ -53,7 +53,7 @@ Example usage to get convex hulls to stdout from clustered input with label:
 
 Example usage to get convex hulls polygons to stdout from unclustered data:
 
-    python parser.py raw_data/marin_trip_pts.csv --num-clusters 15
+    python parser.py data/sf_biz_points.csv --num-clusters 15
 
 ***
 
@@ -72,11 +72,11 @@ Example usage to get convex hull points from clustered data:
 
 Example usage to get convex hulls from unclustered data to html:
 
-    python parser.py raw_data/marin_trip_pts.csv --html marin.html --num-clusters 15
+    python parser.py data/sf_biz_points.csv --html marin.html --num-clusters 15
 
 ***
 
 Example usage to get convex hulls from unclustered data to html and save shapes to file:
 
-    python parser.py raw_data/marin_trip_pts.csv --html marin.html --num-clusters 15 --cluster-prefix marin
+    python parser.py data/sf_biz_points.csv --html marin.html --num-clusters 15 --cluster-prefix marin
 *Outputs convex hulls to a file called marin.csv*
