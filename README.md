@@ -3,7 +3,8 @@ clustexer (clustering + convex hull)
 
 ### Introduction
 
-Script for K-Means clustering geodata and generating convex hulls of the clusters to CSV/Google Maps HTML
+Visualize your clustered geodata!
+Clustexer is a script for K-Means clustering geodata and generating convex hulls of the clusters to CSV/Google Maps HTML
 
 This script is used to:
 * cluster data with k-means
